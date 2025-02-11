@@ -17,7 +17,7 @@ This modules interacts with:
 
 ## API Description
 
-The yaml description of the APIs is provided in the [api](https://github.com/5gmeta/dataflow_cloud/tree/main/api) folder.    
+The yaml description of the APIs is provided in the [api](./api) folder.    
 
 ### Dataflow Catalogue
 

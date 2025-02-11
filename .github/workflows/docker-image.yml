@@ -1,0 +1,53 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build_and_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.8' 
+    
+    - name: Build the Docker image
+      run: cd src/ && docker build . --tag dataflowapi:stable
+      
+    - name: Install python requirements
+      run: pip3 install pip==21.3.1 && pip3 install sqlalchemy==1.4.36 pymysql==1.0.2 kafka_schema_registry==0.1.2 ksql==0.10.2
+
+    - name: Pull kafka containers
+      run: cd tests && docker-compose -f kafka.yaml pull
+      
+    - name: Launch test
+      run: cd tests && docker-compose up -d && sleep 120 && python3 consumer.py
+      
+  deploy:
+
+    runs-on: ubuntu-latest
+    needs: build_and_test
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: cd src/ && docker build . --tag 5gmeta/dataflow-api:latest
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Push the Docker image
+      run: docker push 5gmeta/dataflow-api:latest
+      
+      

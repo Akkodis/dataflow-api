@@ -1,0 +1,609 @@
+openapi: 3.0.1
+info:
+  title: Data flow 5G Meta API
+  description: "APIs exposed to third parties, in order to filter data flows and subscribe\
+    \ to the most useful ones."
+  version: 1.0.0
+servers:
+- url: /dataflow-api
+tags:
+- name: Dataflow catalogue
+- name: Topic management
+paths:
+  /dataflows/{dataFlowId}:
+    get:
+      tags:
+      - Dataflow catalogue
+      summary: Returns the metadata of the choosen DataFlow
+      operationId: get_metadata
+      parameters:
+      - name: dataFlowId
+        in: path
+        description: Id of the dataFlow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataFlow'
+        "404":
+          description: Invalid found
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.dataflow_catalogue_controller
+  /dataflows/{dataType}/query:
+    get:
+      tags:
+      - Dataflow catalogue
+      summary: Returns the list of ids of DataFlows that match the query
+      operationId: get_data_flows
+      parameters:
+      - name: dataType
+        in: path
+        description: Data type of the flow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: dataSubType
+        in: query
+        description: Data subType of the flow
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: dataFormat
+        in: query
+        description: Data format of the flow
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: country
+        in: query
+        description: Source's country
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: quadkey
+        in: query
+        description: Source's quadkey
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: sourceId
+        in: query
+        description: Source's Id
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: sourceType
+        in: query
+        description: Source's type (vehicle or infrastructure)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: extraParameters
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - 1
+                - 2
+                - 3
+                - 5
+                - 8
+                items:
+                  type: integer
+                x-content-type: application/json
+        "405":
+          description: Invalid input
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.dataflow_catalogue_controller
+  /dataflows/{dataType}/query/count:
+    get:
+      tags:
+      - Dataflow catalogue
+      summary: Returns the number of dataFlows that match the query
+      operationId: count_data_flows
+      parameters:
+      - name: dataType
+        in: path
+        description: Data type of the flow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: dataSubType
+        in: query
+        description: Data subType of the flow
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: dataFormat
+        in: query
+        description: Data format of the flow
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: country
+        in: query
+        description: Source's country
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: quadkey
+        in: query
+        description: Source's quadkey
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: sourceId
+        in: query
+        description: Source's Id
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: sourceType
+        in: query
+        description: Source's type (vehicle or infrastructure)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: extraParameters
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: integer
+                example: 5
+                x-content-type: text/plain
+        "405":
+          description: Invalid input
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.dataflow_catalogue_controller
+  /datatypes/{quadkey}:
+    get:
+      tags:
+      - Dataflow catalogue
+      summary: Returns the possible dataTypes in a quadkey
+      operationId: get_datatypes
+      parameters:
+      - name: quadkey
+        in: path
+        description: Interesting quadkey
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+      x-openapi-router-controller: swagger_server.controllers.dataflow_catalogue_controller
+  /datatypes/{dataType}/properties:
+    get:
+      tags:
+      - Dataflow catalogue
+      summary: Returns the possible values for each field for a specific dataType
+      operationId: get_possible_value
+      parameters:
+      - name: dataType
+        in: path
+        description: Data type of the flow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+        "405":
+          description: Not existing type
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.dataflow_catalogue_controller
+  /topics:
+    get:
+      tags:
+      - Topic management
+      summary: Returns the topics associated with that user
+      operationId: topics_by_user
+      parameters:
+      - name: X_Userinfo
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                example:
+                - "links_cpm_1, links_cam_1, links_video_1, links_cam_2, links_cam_3"
+                items:
+                  type: string
+                x-content-type: application/json
+        "404":
+          description: Not found
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.topic_management_controller
+  /topics/{topicName}:
+    get:
+      tags:
+      - Topic management
+      summary: Returns the query that generated the topic
+      operationId: find_query_by_topic_name
+      parameters:
+      - name: topicName
+        in: path
+        description: Name of the topic
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X_Userinfo
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                x-content-type: text/plain
+        "404":
+          description: Not found
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.topic_management_controller
+    delete:
+      tags:
+      - Topic management
+      summary: Delete a topic for the user
+      operationId: delete_topic
+      parameters:
+      - name: topicName
+        in: path
+        description: Name of the topic to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: X_Userinfo
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: successful operation
+          content: {}
+        "404":
+          description: Not found
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.topic_management_controller
+  /topics/{dataType}/query:
+    post:
+      tags:
+      - Topic management
+      summary: catalogue a Kafka topic for the user and returns the topic
+      operationId: create_topic
+      parameters:
+      - name: dataType
+        in: path
+        description: Data type of the flow
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: dataSubType
+        in: query
+        description: Data subType of the flow
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: dataFormat
+        in: query
+        description: Data format of the flow
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: instance_type
+        in: query
+        description: Instance Type of the pipeline processing the flow
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: quadkey
+        in: query
+        description: Source's quadkey
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: country
+        in: query
+        description: Source's country
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: sourceId
+        in: query
+        description: Source's Id
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: sourceType
+        in: query
+        description: Source's type (vehicle or infrastructure)
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: extraParameters
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      - name: X_Userinfo
+        in: header
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: links_cpm_1
+                x-content-type: text/plain
+        "405":
+          description: Invalid input
+          content: {}
+      x-openapi-router-controller: swagger_server.controllers.topic_management_controller
+components:
+  schemas:
+    DataFlow:
+      required:
+      - dataFlowId
+      - dataInfo
+      - dataSourceInfo
+      - dataTypeInfo
+      - licenseInfo
+      type: object
+      properties:
+        dataFlowId:
+          type: string
+        dataTypeInfo:
+          $ref: '#/components/schemas/DataTypeInfo'
+        dataInfo:
+          $ref: '#/components/schemas/DataInfo'
+        licenseInfo:
+          $ref: '#/components/schemas/LicenseInfo'
+        dataSourceInfo:
+          $ref: '#/components/schemas/DataSourceInfo'
+      example:
+        dataTypeInfo:
+          dataType: dataType
+          dataSubType: dataSubType
+        dataInfo:
+          dataFormat: dataFormat
+          dataSampleRate: 0.80082819046101150206595775671303272247314453125
+          dataflowDirection: dataflowDirection
+          extraAttributes: extraAttributes
+        licenseInfo:
+          licenseType: licenseType
+          licenseGeolimit: 6
+        dataFlowId: dataFlowId
+        dataSourceInfo:
+          sourceId: sourceId
+          timeRegistration: 5
+          timeStratumLevel: 7
+          sourceType: 1
+          timeLastUpdate: 5
+          timeZone: 2
+          sourceLocationInfo:
+            locationCountry: locationCountry
+            locationLatitude: 9.301444243932575517419536481611430644989013671875
+            locationLongitude: 3.61607674925191080461672754609026014804840087890625
+            locationQuadkey: locationQuadkey
+    DataInfo:
+      required:
+      - dataflowDirection
+      - dataSampleRate
+      type: object
+      properties:
+        dataflowDirection:
+          type: string
+        dataFormat:
+          type: string
+        dataSampleRate:
+          type: number
+        extraAttributes:
+          type: string
+      example:
+        dataFormat: dataFormat
+        dataSampleRate: 0.80082819046101150206595775671303272247314453125
+        dataflowDirection: dataflowDirection
+        extraAttributes: extraAttributes
+    LicenseInfo:
+      required:
+      - licenseGeolimit
+      - licenseType
+      type: object
+      properties:
+        licenseType:
+          type: string
+        licenseGeolimit:
+          type: integer
+      example:
+        licenseType: licenseType
+        licenseGeolimit: 6
+    SourceLocationInfo:
+      required:
+      - locationQuadkey
+      type: object
+      properties:
+        locationCountry:
+          type: string
+        locationLatitude:
+          type: number
+        locationLongitude:
+          type: number
+        locationQuadkey:
+          type: string
+      example:
+        locationCountry: locationCountry
+        locationLatitude: 9.301444243932575517419536481611430644989013671875
+        locationLongitude: 3.61607674925191080461672754609026014804840087890625
+        locationQuadkey: locationQuadkey
+    DataSourceInfo:
+      required:
+      - sourceId
+      - sourceLocationInfo
+      - sourceType
+      - timeLastUpdate
+      - timeRegistration
+      type: object
+      properties:
+        sourceId:
+          type: string
+        sourceType:
+          type: integer
+        timeRegistration:
+          type: integer
+        timeLastUpdate:
+          type: integer
+        timeZone:
+          type: integer
+        timeStratumLevel:
+          type: integer
+        sourceLocationInfo:
+          $ref: '#/components/schemas/SourceLocationInfo'
+      example:
+        sourceId: sourceId
+        timeRegistration: 5
+        timeStratumLevel: 7
+        sourceType: 1
+        timeLastUpdate: 5
+        timeZone: 2
+        sourceLocationInfo:
+          locationCountry: locationCountry
+          locationLatitude: 9.301444243932575517419536481611430644989013671875
+          locationLongitude: 3.61607674925191080461672754609026014804840087890625
+          locationQuadkey: locationQuadkey
+    DataTypeInfo:
+      required:
+      - dataSubType
+      - dataType
+      type: object
+      properties:
+        dataType:
+          type: string
+        dataSubType:
+          type: string
+      example:
+        dataType: dataType
+        dataSubType: dataSubType
+

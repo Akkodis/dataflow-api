@@ -1,0 +1,16 @@
+version: '3.1'
+services:
+
+  dataflowApi:
+    image: dataflowapi:stable
+    ports:
+      - 12345:8080
+    restart: on-failure
+    environment:
+      - "DB_USER=username"
+      - "DB_PASSWORD=password"
+      - "DB_IP=db-ip"
+      - "DB_PORT=3306"
+      - "DB_NAME=5GMETA"
+      - "KAFKA_IP=kafka-ip"
+      - "KAFKA_PORT=8088"
